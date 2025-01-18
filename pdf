@@ -1,0 +1,81 @@
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.lib import colors
+
+
+def hello():
+    # Регистрация шрифтов
+    pdfmetrics.registerFont(TTFont('Bold', os.path.join('font', 'PT-Astra-Serif_Bold.ttf')))
+    pdfmetrics.registerFont(TTFont('Regular', os.path.join('font', 'PT-Astra-Serif_Regular.ttf')))
+
+    # Создание документа
+    doc = SimpleDocTemplate("заявление.pdf", pagesize=letter, rightMargin=72, leftMargin=72, topMargin=100,
+                            bottomMargin=18)
+
+    # Создание стилей
+    styles = getSampleStyleSheet()
+
+    # Стиль для текста с выравниванием по левому краю
+    russian_style_left = ParagraphStyle(
+        'RussianStyleLeft',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_LEFT,
+    )
+
+    # Стиль для жирного текста с выравниванием по центру
+    russian_style_center_bold = ParagraphStyle(
+        'RussianStyleCenterBold',
+        parent=styles['Normal'],
+        fontName='Bold',
+        fontSize=14,
+        alignment=TA_CENTER,
+    )
+
+    # Стиль для текста в таблице
+    table_style = ParagraphStyle(
+        'TableStyle',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=10,
+        alignment=TA_LEFT,
+    )
+
+    flowables = []
+
+    # Добавление текста "ЗАЯВЛЕНИЕ" по центру жирным шрифтом
+    text_zayavlenie = "ЗАЯВЛЕНИЕ"
+    para_zayavlenie = Paragraph(text_zayavlenie, style=russian_style_center_bold)
+    flowables.append(para_zayavlenie)
+
+    # Добавление отступа между "ЗАЯВЛЕНИЕ" и таблицей
+    flowables.append(Spacer(0, 25))
+
+    # Создание таблицы 2x2
+    table_data = [
+        [Paragraph("ИАТ", table_style), Paragraph("КОМУ", table_style)],
+        ["", Paragraph("От кого", table_style)]
+    ]
+    table = Table(table_data, colWidths=[100, 100], rowHeights=[30, 30])
+
+    # Стиль таблицы
+    table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+
+    # Добавление таблицы в flowables
+    flowables.append(table)
+
+    # Построение документа
+    doc.build(flowables)
+
+
+if __name__ == '__main__':
+    hello()
