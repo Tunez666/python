@@ -1,0 +1,75 @@
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.pdfgen import canvas
+
+import os
+
+def tz():
+    
+    pdfmetrics.registerFont(TTFont('Bold', os.path.join('font', 'PT-Astra-Serif_Bold.ttf')))
+    pdfmetrics.registerFont(TTFont('Regular', os.path.join('font', 'PT-Astra-Serif_Regular.ttf')))
+
+    doc = SimpleDocTemplate("ТЗ.pdf", pagesize=letter, rightMargin=72, leftMargin=35, topMargin=10, bottomMargin=18)
+
+    styles = getSampleStyleSheet()
+    russian_style_left_bold = ParagraphStyle(
+        'RussianStyleLeftBold',
+        parent=styles['Normal'],
+        fontName='Bold',
+        fontSize=12,
+        alignment=TA_LEFT,
+    )
+    russian_style_left = ParagraphStyle(
+        'RussianStyleLeft',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_LEFT,
+    )
+
+    russian_style_center_bold = ParagraphStyle(
+        'RussianStyleCenterBold',
+        parent=styles['Normal'],
+        fontName='Bold',
+        fontSize=12,
+        alignment=TA_CENTER,
+    )
+
+    flowables = []
+    flowables.append(Paragraph("УТВЕРЖДАЮ", style=russian_style_left_bold))
+    flowables.append(Paragraph("Должность", style=russian_style_left))
+    flowables.append(Spacer(0, 25))
+
+    def draw_lines(canvas, doc):
+        canvas.line(40, 730, 163, 730)  # Горизонтальная линия
+        canvas.line(40, 470, 570, 470) #dop
+        canvas.line(40, 400, 570, 400)
+
+        text = canvas.beginText()
+        text.setFont('Regular', 12)
+        text.setTextOrigin(40, 700)
+        text.textLine("«___» _______________ 2025 г.")
+        canvas.drawText(text)
+
+        text.setTextOrigin(165, 730)
+        text.textLine("ФИО")
+        canvas.drawText(text)
+
+        text.setFont('Bold', 16)
+        text.setTextOrigin(240, 500)
+        text.textLine("Наименование вида ИС")
+        canvas.drawText(text)
+
+        text.setFont('Bold', 16)
+        text.setTextOrigin(225, 430)
+        text.textLine("Сокращенное наименование")
+        canvas.drawText(text)
+
+    doc.build(flowables, onFirstPage=draw_lines)
+
+if __name__ == '__main__':
+    tz()
