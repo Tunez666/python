@@ -1,0 +1,111 @@
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+import psycopg2
+
+def create_document():
+    try:
+        # пытаемся подключиться к базе данных
+        conn = psycopg2.connect(dbname='python', user='postgres', password='1', host='192.168.172.248')
+        cursor = conn.cursor()
+
+        # Выполняем запросы
+        cursor.execute("SELECT customer FROM one")
+        customer = cursor.fetchone()[0]
+
+        cursor.execute("SELECT executor FROM one")
+        executor = cursor.fetchone()[0]
+        
+
+    except Exception as e:
+        print(f'Ошибка при работе с базой данных: {e}')
+        return
+
+    pdfmetrics.registerFont(TTFont('Bold', os.path.join('font', 'PT-Astra-Serif_Bold.ttf')))
+    pdfmetrics.registerFont(TTFont('Regular', os.path.join('font', 'PT-Astra-Serif_Regular.ttf')))
+
+    doc = SimpleDocTemplate(
+        "zadanie.pdf",
+        pagesize=letter,
+        rightMargin=10,
+        leftMargin=30,
+        topMargin=20,
+        bottomMargin=18
+    )
+
+    styles = getSampleStyleSheet()
+
+    normal_style = ParagraphStyle(
+        'NormalStyle',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_LEFT,
+    )
+
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_CENTER,
+    )
+
+    flowables = []
+
+    header_data = [
+        [Paragraph(f"Заказчик: {customer}\nПреподаватель: директор", normal_style),
+         Paragraph(f"Исполнитель: {executor}", normal_style)]
+    ]
+
+    header_table = Table(header_data, colWidths=[100 * mm, 60 * mm])
+    header_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    flowables.append(header_table)
+
+    flowables.append(Spacer(0, 20))
+
+    title = Paragraph("Не понял что сюда писать", title_style)
+    flowables.append(title)
+
+    flowables.append(Spacer(0, 20))
+
+    data = [
+        ['1', '2', '3', '4', '5'],
+        ['1', '2', '3', '45', ''],
+    ]
+    data.append(['12', '', '3', '4', '5'])
+
+    data_table = Table(data, colWidths=[30 * mm, 30 * mm, 30 * mm, 30 * mm, 30 * mm])
+    data_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Regular'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('SPAN', (0, 2), (1, 2)),
+        ('SPAN', (3, 1), (4, 1))
+    ]))
+    flowables.append(data_table)
+
+    doc.build(flowables)
+
+    # Закрываем соединение с базой данных
+    cursor.close()
+    conn.close()
+
+if __name__ == '__main__':
+    create_document()
+
