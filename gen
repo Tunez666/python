@@ -1,0 +1,112 @@
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+
+
+def create_document():
+    # Регистрация шрифтов
+    pdfmetrics.registerFont(TTFont('Bold', os.path.join('font', 'PT-Astra-Serif_Bold.ttf')))
+    pdfmetrics.registerFont(TTFont('Regular', os.path.join('font', 'PT-Astra-Serif_Regular.ttf')))
+
+    # Создание документа
+    doc = SimpleDocTemplate(
+        "zadanie.pdf",
+        pagesize=letter,
+        rightMargin=72,
+        leftMargin=72,
+        topMargin=72,
+        bottomMargin=18
+    )
+
+    # Создание стилей
+    styles = getSampleStyleSheet()
+
+    # Стиль для обычного текста
+    normal_style = ParagraphStyle(
+        'NormalStyle',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_LEFT,
+    )
+
+    # Стиль для заголовка
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Normal'],
+        fontName='Regular',
+        fontSize=12,
+        alignment=TA_CENTER,
+    )
+
+    flowables = []
+
+    # Создание верхней таблицы
+    header_text_left = """Заказчик:
+Касьяненко Сергей Николаевич
+Преподаватель: директор
+**Ширина колонки 100 мм"""
+
+    header_text_right = """Исполнитель:
+Русинов Александр Алексеевич
+студент: старший лаборант
+** ширина колонки 60 мм"""
+
+    header_data = [
+        [Paragraph(header_text_left, normal_style),
+         Paragraph(header_text_right, normal_style)]
+    ]
+
+    header_table = Table(header_data, colWidths=[100 * mm, 60 * mm])
+    header_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    flowables.append(header_table)
+
+    # Добавление отступа
+    flowables.append(Spacer(0, 20))
+
+    # Добавление заголовка "Задание"
+    title = Paragraph("Задание (** по центру)", title_style)
+    flowables.append(title)
+
+    # Добавление отступа
+    flowables.append(Spacer(0, 20))
+
+    # Создание таблицы с данными
+    data = [
+        ['1', '2', '3', '4', '5'],
+        ['1', '2', '3', '45', ''],
+    ]
+    # Добавляем последнюю строку с объединенными ячейками
+    data.append(['12', '', '3', '4', '5'])
+
+    data_table = Table(data, colWidths=[30 * mm, 30 * mm, 30 * mm, 30 * mm, 30 * mm])
+    data_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Regular'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        # Объединяем первые две ячейки в последней строке
+        ('SPAN', (0, 2), (1, 2)),
+    ]))
+    flowables.append(data_table)
+
+    # Построение документа
+    doc.build(flowables)
+
+
+if __name__ == '__main__':
+    create_document()
