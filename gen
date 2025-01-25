@@ -10,24 +10,21 @@ from reportlab.lib.units import mm
 
 
 def create_document():
-    # Регистрация шрифтов
+
     pdfmetrics.registerFont(TTFont('Bold', os.path.join('font', 'PT-Astra-Serif_Bold.ttf')))
     pdfmetrics.registerFont(TTFont('Regular', os.path.join('font', 'PT-Astra-Serif_Regular.ttf')))
 
-    # Создание документа
     doc = SimpleDocTemplate(
         "zadanie.pdf",
         pagesize=letter,
-        rightMargin=72,
-        leftMargin=72,
-        topMargin=72,
+        rightMargin=10,
+        leftMargin=30,
+        topMargin=20,
         bottomMargin=18
     )
 
-    # Создание стилей
     styles = getSampleStyleSheet()
 
-    # Стиль для обычного текста
     normal_style = ParagraphStyle(
         'NormalStyle',
         parent=styles['Normal'],
@@ -36,7 +33,7 @@ def create_document():
         alignment=TA_LEFT,
     )
 
-    # Стиль для заголовка
+
     title_style = ParagraphStyle(
         'TitleStyle',
         parent=styles['Normal'],
@@ -47,16 +44,14 @@ def create_document():
 
     flowables = []
 
-    # Создание верхней таблицы
+
     header_text_left = """Заказчик:
 Касьяненко Сергей Николаевич
-Преподаватель: директор
-**Ширина колонки 100 мм"""
+Преподаватель: директор"""
 
     header_text_right = """Исполнитель:
-Русинов Александр Алексеевич
-студент: старший лаборант
-** ширина колонки 60 мм"""
+Рединов Дмитрий Максимович
+студент: старший лаборант"""
 
     header_data = [
         [Paragraph(header_text_left, normal_style),
@@ -75,22 +70,21 @@ def create_document():
     ]))
     flowables.append(header_table)
 
-    # Добавление отступа
+
     flowables.append(Spacer(0, 20))
 
-    # Добавление заголовка "Задание"
-    title = Paragraph("Задание (** по центру)", title_style)
+
+    title = Paragraph("Не понял что сюда писать", title_style)
     flowables.append(title)
 
-    # Добавление отступа
+
     flowables.append(Spacer(0, 20))
 
-    # Создание таблицы с данными
+
     data = [
         ['1', '2', '3', '4', '5'],
         ['1', '2', '3', '45', ''],
     ]
-    # Добавляем последнюю строку с объединенными ячейками
     data.append(['12', '', '3', '4', '5'])
 
     data_table = Table(data, colWidths=[30 * mm, 30 * mm, 30 * mm, 30 * mm, 30 * mm])
@@ -99,12 +93,13 @@ def create_document():
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, -1), 'Regular'),
         ('FONTSIZE', (0, 0), (-1, -1), 12),
-        # Объединяем первые две ячейки в последней строке
+
         ('SPAN', (0, 2), (1, 2)),
+        ('SPAN', (3, 1), (4, 1))
     ]))
     flowables.append(data_table)
 
-    # Построение документа
+
     doc.build(flowables)
 
 
