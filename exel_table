@@ -1,0 +1,31 @@
+import openpyxl
+from openpyxl import Workbook
+
+def create():
+
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.tittle = "aaaaaaa"
+    col = 1
+    data = ["ид адрес", "ид улица", "ид дома", "ид собственника", "ид квартиры"]
+    for i in range(5) :
+        stringi = data[i]
+        sheet.cell(row=1, column=col, value= stringi)
+        col += 1
+
+    col_1 = 1
+    row_1 = 2
+    pididi = 1
+
+    for i in range(40):
+        sheet.cell(row=row_1, column=col_1, value=pididi)
+        col_1 = col_1 + 1
+        if pididi % 5 == 0:
+            row_1 = row_1 + 1
+            col_1 = 1
+        pididi = pididi + 1
+
+
+    wb.save("no_example.xlsx")
+
+create()
