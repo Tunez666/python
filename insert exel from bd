@@ -1,0 +1,28 @@
+import openpyxl
+import psycopg2
+from openpyxl import Workbook
+
+def create():
+    conn = psycopg2.connect(dbname='python', user='postgres', password='123', host='192.168.172.248')
+    cursor = conn.cursor()
+
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = "Экспортированные данные"
+
+    atributes = ["ид адрес", "ид улица", "ид дома", "ид собственника", "ид квартиры"]
+
+    for col, atr in enumerate(atributes, start=1):
+        sheet.cell(row=1, column=col, value=atr)
+
+    cursor.execute("SELECT * FROM exel")
+    zifirki = cursor.fetchall()
+
+    for row, record in enumerate(zifirki, start=2):
+        for col, value in enumerate(record, start=1):
+            sheet.cell(row=row, column=col, value=value)
+
+    wb.save("exported_data.xlsx")
+    conn.close()
+
+create()
