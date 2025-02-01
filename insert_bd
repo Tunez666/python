@@ -1,0 +1,23 @@
+import openpyxl
+import psycopg2
+from openpyxl import Workbook
+
+def create():
+    try:
+        conn = psycopg2.connect(dbname='python', user='postgres', password='123', host='192.168.172.248')
+        cursor = conn.cursor()
+
+    except Exception as e:
+        print(f'Ошибка при работе с базой данных: {e}')
+        return
+    val = 1
+    for i in range(200):
+        cursor.execute("INSERT INTO exel (addresses, street, home, people, cvartira) " +
+                       "VALUES (" + str(val) + "," + str(val + 1) + "," + str(val + 2) + "," + str(val + 3) + "," + str(
+            val + 4) + ")")
+        val = val + 5
+        conn.commit()
+
+
+
+create()
