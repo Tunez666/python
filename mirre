@@ -1,93 +1,23 @@
 from django.db import models
 
 class MedicalOrganization(models.Model):
-    REESTR = models.CharField(
-        max_length=255, 
-        verbose_name="Реестровый номер медицинской организации (индивидуального предпринимателя, осуществляющего медицинскую деятельность)"
-    )
+    idmo = models.CharField(max_length=50, unique=True, verbose_name="Реестровый номер МО")
+    nam_mop = models.TextField(verbose_name="Полное название МО")
+    nam_mok = models.CharField(max_length=255, verbose_name="Сокращенное название МО")
+    inn = models.CharField(max_length=12, verbose_name="ИНН")
+    kpp = models.CharField(max_length=9, verbose_name="КПП")
+    ogrn = models.CharField(max_length=15, verbose_name="ОГРН")
+    oid_mo = models.CharField(max_length=100, verbose_name="OID МО")
+    okopf = models.CharField(max_length=10, verbose_name="ОКОПФ")
+    okfs = models.CharField(max_length=10, verbose_name="ОКФС")
+    addr_j = models.TextField(verbose_name="Юридический адрес")
+    addr_j_gar = models.CharField(max_length=100, verbose_name="Адрес GAR")
+    oktmo = models.CharField(max_length=11, verbose_name="ОКТМО")
+    email = models.EmailField(verbose_name="Email")
+    phone = models.CharField(max_length=50, verbose_name="Телефон")
+    fax = models.CharField(max_length=50, null=True, blank=True, verbose_name="Факс")
+    datebeg = models.DateTimeField(verbose_name="Дата начала действия записи")
+    dateend = models.DateTimeField(verbose_name="Дата окончания действия записи")
     
-    NAM_MOF = models.TextField(
-        verbose_name="Полное наименование медицинской организации в соответствии со сведениями ЕГРЮЛ, либо фамилия, имя, отчество (при наличии) инд..."
-    )
-    
-    NAM_MOK = models.TextField(
-        verbose_name="Сокращенное наименование медицинской организации в соответствии со сведениями ЕГРЮЛ, либо фамилия или имя индивидуального пре..."
-    )
-    
-    INN = models.CharField(
-        max_length=12,
-        verbose_name="ИНН медицинской организации (индивидуального предпринимателя) в соответствии со свидетельством о постановке на учет в налогов..."
-    )
-    
-    KPP = models.CharField(
-        max_length=9,
-        verbose_name="КПП медицинской организации в соответствии со свидетельством о постановке на учет в налоговом органе либо значение «000000000..."
-    )
-    
-    OGRN = models.CharField(
-        max_length=15,
-        verbose_name="ОГРН медицинской организации в соответствии со сведениями ЕГРЮЛ либо ОГРН индивидуального предпринимателя, осуществляющего ме..."
-    )
-    
-    OID_MO = models.CharField(
-        max_length=255,
-        verbose_name="OID медицинской организации (индивидуального предпринимателя) в соответствии со сведениями НСИ Минздрава России (OID справочн..."
-    )
-    
-    OKOPF = models.CharField(
-        max_length=255,
-        verbose_name="Код организационно-правовой формы медицинской организации (индивидуального предпринимателя) в соответствии с Общероссийским к..."
-    )
-    
-    OKFS = models.CharField(
-        max_length=255,
-        verbose_name="Код формы собственности медицинской организации (индивидуального предпринимателя) в соответствии с Общероссийским классификат..."
-    )
-    
-    ADDR_J = models.TextField(
-        verbose_name="Адрес медицинской организации в пределах места нахождения медицинской организации, либо адрес, по которому индивидуальный пре..."
-    )
-    
-    ADDR_J_GAR = models.CharField(
-        max_length=255,
-        verbose_name="Уникальный номер адреса медицинской организации в пределах места нахождения медицинской организации, либо уникальный номер ад..."
-    )
-    
-    OKTMO = models.CharField(
-        max_length=255,
-        verbose_name="Код территории субъекта Российской Федерации, в котором расположена медицинская организация, либо в котором зарегистрирован п..."
-    )
-    
-    EMAIL = models.EmailField(
-        verbose_name="Адрес электронной почты медицинской организации (индивидуального предпринимателя, осуществляющего медицинскую деятельность)"
-    )
-    
-    PHONE = models.CharField(
-        max_length=255,
-        verbose_name="Телефон медицинской организации (индивидуального предпринимателя, осуществляющего медицинскую деятельность)"
-    )
-    
-    FAX = models.CharField(
-        max_length=255,
-        verbose_name="Факс",
-        blank=True,
-        null=True
-    )
-    
-    DATE_B = models.DateField(
-        verbose_name="Дата начала действия записи"
-    )
-    
-    DATE_E = models.DateField(
-        verbose_name="Дата окончания действия записи",
-        null=True,
-        blank=True
-    )
-
-    class Meta:
-        verbose_name = "Медицинская организация"
-        verbose_name_plural = "Медицинские организации"
-        ordering = ['REESTR']
-
     def __str__(self):
-        return f"{self.REESTR} - {self.NAM_MOK}"
+        return self.nam_mok
