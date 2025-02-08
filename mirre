@@ -1,23 +1,59 @@
-from django.db import models
+import os
+import django
+import openpyxl
+from datetime import datetime
 
-class MedicalOrganization(models.Model):
-    idmo = models.CharField(max_length=50, unique=True, verbose_name="Реестровый номер МО")
-    nam_mop = models.TextField(verbose_name="Полное название МО")
-    nam_mok = models.CharField(max_length=255, verbose_name="Сокращенное название МО")
-    inn = models.CharField(max_length=12, verbose_name="ИНН")
-    kpp = models.CharField(max_length=9, verbose_name="КПП")
-    ogrn = models.CharField(max_length=15, verbose_name="ОГРН")
-    oid_mo = models.CharField(max_length=100, verbose_name="OID МО")
-    okopf = models.CharField(max_length=10, verbose_name="ОКОПФ")
-    okfs = models.CharField(max_length=10, verbose_name="ОКФС")
-    addr_j = models.TextField(verbose_name="Юридический адрес")
-    addr_j_gar = models.CharField(max_length=100, verbose_name="Адрес GAR")
-    oktmo = models.CharField(max_length=11, verbose_name="ОКТМО")
-    email = models.EmailField(verbose_name="Email")
-    phone = models.CharField(max_length=50, verbose_name="Телефон")
-    fax = models.CharField(max_length=50, null=True, blank=True, verbose_name="Факс")
-    datebeg = models.DateTimeField(verbose_name="Дата начала действия записи")
-    dateend = models.DateTimeField(verbose_name="Дата окончания действия записи")
+# Настройка Django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
+django.setup()
+
+from your_app.models import MedicalOrganization
+
+def import_excel_data(file_path):
+    workbook = openpyxl.load_workbook(file_path)
+    sheet = workbook.active
+
+    # Получаем заголовки столбцов
+    headers = [cell.value for cell in sheet[1]]
+
+    # Сопоставление заголовков с полями модели
+    field_mapping = {
+        'Реестровый номер МО': 'idmo',
+        'Полное название МО': 'nam_mop',
+        'Сокращенное название МО': 'nam_mok',
+        'ИНН': 'inn',
+        'КПП': 'kpp',
+        'ОГРН': 'ogrn',
+        'OID МО': 'oid_mo',
+        'ОКОПФ': 'okopf',
+        'ОКФС': 'okfs',
+        'Юридический адрес': 'addr_j',
+        'Адрес GAR': 'addr_j_gar',
+        'ОКТМО': 'oktmo',
+        'Email': 'email',
+        'Телефон': 'phone',
+        'Факс': 'fax',
+        'Дата начала действия записи': 'datebeg',
+        'Дата окончания действия записи': 'dateend'
+    }
+
+    # Получаем индексы столбцов
+    column_indices = {field_mapping[header]: headers.index(header) for header in headers if header in field_mapping}
+
+    records = []
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        org_data = {}
+        for field, index in column_indices.items():
+            value = row[index]
+            if field in ['datebeg', 'dateend'] and value:
+                value = datetime(*value.timetuple()[:3]).date()
+            org_data[field] = value
+
+        records.append(MedicalOrganization(**org_data))
     
-    def __str__(self):
-        return self.nam_mok
+    MedicalOrganization.objects.bulk_create(records)
+    print(f"Данные успешно импортированы! Импортировано {len(records)} записей.")
+
+if __name__ == "__main__":
+    excel_file_path = "/mnt/data/1.2.643.5.1.13.13.99.3.34_4.12.xlsx"
+    import_excel_data(excel_file_path)
