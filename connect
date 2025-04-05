@@ -1,0 +1,27 @@
+
+Настройка постгре
+a. Отредактировать файл postgresql.conf:
+•	sudo nano /etc/postgresql/16/main/postgresql.conf
+Найти строку `listen_addresses` и измените ее на:
+listen_addresses = '*'
+
+b. Отредакатировать файл pg_hba.conf для разрешения подключений:
+•	sudo nano /etc/postgresql/16/main/pg_hba.conf
+Добавить строку (замените IP на адрес вашей локальной сети):
+•	host    all    all    192.168.1.0/24    md5 либо
+•	host    all    all    0.0.0.0/0    md5 – подключение со всех адресов
+
+c. Перезапустить PostgreSQL:
+•	sudo service postgresql restart
+
+Создание пароля пользователю: 
+Вход под именем пользователя
+•	sudo -i -u postgres
+Запускаем терминал
+•	Psql
+Запрос на смену пароля
+•	ALTER USER postgres PASSWORD 'your_new_password';
+Выход
+•	\q
+•	exit
+
