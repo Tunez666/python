@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Купить билет</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        form { max-width: 500px; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .seat-info { margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>Купить билет в кино</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <h3>Ваши данные:</h3>
+        <input type="text" name="last_name" placeholder="Фамилия" required>
+        <input type="text" name="first_name" placeholder="Имя" required>
+        <input type="text" name="phone" placeholder="Телефон" required>
+        <input type="date" name="birth_date" required>
+
+        <h3>Выберите сеанс:</h3>
+        <select name="session_id" id="session-select" required>
+            <option value="">-- Выберите сеанс --</option>
+            {% for session in sessions %}
+                <option value="{{ session.id }}">
+                    {{ session.title }} — {{ session.start_time|date:"d.m.Y H:i" }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div id="seat-selection" style="display: none;">
+            <h3>Выберите место:</h3>
+            <select name="seat_id" required>
+                <!-- Места будут подгружаться через JS -->
+            </select>
+        </div>
+
+        <button type="submit">Купить билет</button>
+    </form>
+
+    <script>
+        document.getElementById('session-select').addEventListener('change', function() {
+            const sessionId = this.value;
+            const seatSelection = document.getElementById('seat-selection');
+
+            if (sessionId) {
+                fetch(`/api/free-seats/?session_id=${sessionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const seatSelect = document.querySelector('select[name="seat_id"]');
+                        seatSelect.innerHTML = '';
+
+                        data.seats.forEach(seat => {
+                            const option = document.createElement('option');
+                            option.value = seat.id;
+                            option.textContent = `Место ${seat.number}`;
+                            seatSelect.appendChild(option);
+                        });
+
+                        seatSelection.style.display = 'block';
+                    });
+            } else {
+                seatSelection.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
